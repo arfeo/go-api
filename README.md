@@ -37,7 +37,7 @@ Assume that you have some tables in your PostgreSQL database, for example:
 
 You also have functions that implement some actions on those tables and return data in JSON format:
 
-```postgresql
+```sql
 CREATE FUNCTION users_change_full_name(_user_id integer, _full_name varchar) RETURNS json AS
   $$
   DECLARE
@@ -70,7 +70,7 @@ LANGUAGE 'plpgsql';
 
 and
 
-```postgresql
+```sql
 CREATE FUNCTION classes_get_list() RETURNS json AS
   $$
   BEGIN
@@ -140,12 +140,12 @@ $ go run main.go
 
 That's all. As easy as pie!
 
-```
+```bash
 $ curl -X GET localhost:8100/classes/list
 [{"id":1,"name":"Private"},{"id":2,"name":"Technician"},{"id":3,"name":"Shooter"},{"id":4,"name":"Officer"},{"id":5,"name":"General"},{"id":6,"name":"King"}]
 ```
 
-```
+```bash
 $ curl -X POST localhost:8100/users/change_full_name/ -d '{"user_id":1,"full_name":"Leonid Belikov"}'
 {"id" : 1, "username" : "arfeo", "full_name" : "Leonid Belikov", "email" : "mail@mail.net", "is_activated" : true, "is_deleted" : false, "registered_at" : "2019-03-17T20:24:36.489189+03:00", "updated_at" : "2019-03-24T16:55:01.418285+03:00"}
 ```
