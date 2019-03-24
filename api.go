@@ -12,8 +12,6 @@ import (
 
   "github.com/arfeo/go-file"
   _ "github.com/lib/pq"
-
-  "./errors"
 )
 
 var (
@@ -36,7 +34,7 @@ func handler(response http.ResponseWriter, request *http.Request, endpoints []En
   routeSplit := strings.Split(request.URL.Path, "/")
 
   if len(routeSplit) < 3 {
-    result, outputError, responseCode = errors.NotFound()
+    result, outputError, responseCode = errorNotFound()
 
     output(response, result, outputError, responseCode)
 
@@ -54,7 +52,7 @@ func handler(response http.ResponseWriter, request *http.Request, endpoints []En
     body = request.Body
     break
   default:
-    result, outputError, responseCode = errors.NotImplemented()
+    result, outputError, responseCode = errorNotImplemented()
     output(response, result, outputError, responseCode)
     return
   }
@@ -73,14 +71,14 @@ func handler(response http.ResponseWriter, request *http.Request, endpoints []En
         result, outputError, responseCode = processBody(body, v.Params, v.Query)
         break
       default:
-        result, outputError, responseCode = errors.NotImplemented()
+        result, outputError, responseCode = errorNotImplemented()
         break
       }
     }
   }
 
   if !methodFound {
-    result, outputError, responseCode = errors.NotFound()
+    result, outputError, responseCode = errorNotFound()
   }
 
   if result != "" || outputError != nil {
@@ -105,7 +103,7 @@ func processValues(values url.Values, params []string, query string) (result str
       isValue := len(values[v]) > 0 && len(values[v][0]) > 0
 
       if !isValue {
-        return errors.NoArguments()
+        return errorNoArguments()
       }
 
       payload[i] = values[v][0]
@@ -139,7 +137,7 @@ func processBody(body io.ReadCloser, params []string, query string) (result stri
       isValue := values[v] != ""
 
       if !isValue {
-        return errors.NoArguments()
+        return errorNoArguments()
       }
 
       payload[i] = values[v]
