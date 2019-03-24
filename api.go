@@ -59,11 +59,11 @@ func handler(response http.ResponseWriter, request *http.Request, endpoints []En
     return
   }
 
-  callFound := false
+  methodFound := false
 
   for _, v := range endpoints {
     if v.Entity == entity && v.EntityMethod == method {
-      callFound = true
+      methodFound = true
 
       switch strings.ToUpper(v.RequestMethod) {
       case "GET":
@@ -79,7 +79,7 @@ func handler(response http.ResponseWriter, request *http.Request, endpoints []En
     }
   }
 
-  if !callFound {
+  if !methodFound {
     result, outputError, responseCode = errors.NotFound()
   }
 
