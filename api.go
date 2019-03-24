@@ -128,7 +128,7 @@ func processBody(body io.ReadCloser, params []string, query string) (result stri
   var row *sql.Row
 
   if len(params) > 0 {
-    values := make(map[string]string)
+    values := make(map[string]interface{})
     payload := make([]interface{}, len(params))
 
     decodeRequestBody(body, &values)
