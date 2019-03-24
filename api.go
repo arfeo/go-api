@@ -14,25 +14,24 @@ import (
   _ "github.com/lib/pq"
 )
 
-var (
-  AppConfig Config
-  DBHandle *sql.DB
-)
+var dbHandle *sql.DB
 
 /**
  * Handler function for the host's root
  */
 func handler(response http.ResponseWriter, request *http.Request, endpoints []Endpoint) {
   var (
-    result string
-    outputError error
-    responseCode int
-    values url.Values
-    body io.ReadCloser
+    result          string
+    outputError     error
+    responseCode    int
+    values          url.Values
+    body            io.ReadCloser
   )
 
   routeSplit := strings.Split(request.URL.Path, "/")
 
+  // If the URL path doesn't contain at least two sections divided by `/` symbol (/entity/entityMethod),
+  // we assume that the resource can not be found
   if len(routeSplit) < 3 {
     result, outputError, responseCode = errorNotFound()
 
@@ -42,8 +41,11 @@ func handler(response http.ResponseWriter, request *http.Request, endpoints []En
   }
 
   entity := routeSplit[1]
-  method := routeSplit[2]
+  entityMethod := routeSplit[2]
 
+  // If the request method is known,
+  // get the query string parameters for GET,
+  // the request body for DELETE, POST and PUT
   switch strings.ToUpper(request.Method) {
   case "GET":
     values = request.URL.Query()
@@ -57,18 +59,21 @@ func handler(response http.ResponseWriter, request *http.Request, endpoints []En
     return
   }
 
-  methodFound := false
+  entityMethodFound := false
 
+  // Search for the given entity and entity method
+  // in the endpoints structure; if found -- process parameters
+  // depending on the request method
   for _, v := range endpoints {
-    if v.Entity == entity && v.EntityMethod == method {
-      methodFound = true
+    if v.Entity == entity && v.EntityMethod == entityMethod {
+      entityMethodFound = true
 
       switch strings.ToUpper(v.RequestMethod) {
       case "GET":
-        result, outputError, responseCode = processValues(values, v.Params, v.Query)
+        result, outputError, responseCode = processQueryString(values, v.Params, v.Query)
         break
       case "DELETE", "POST", "PUT":
-        result, outputError, responseCode = processBody(body, v.Params, v.Query)
+        result, outputError, responseCode = processRequestBody(body, v.Params, v.Query)
         break
       default:
         result, outputError, responseCode = errorNotImplemented()
@@ -77,7 +82,7 @@ func handler(response http.ResponseWriter, request *http.Request, endpoints []En
     }
   }
 
-  if !methodFound {
+  if !entityMethodFound {
     result, outputError, responseCode = errorNotFound()
   }
 
@@ -93,12 +98,16 @@ func handler(response http.ResponseWriter, request *http.Request, endpoints []En
  * and returns its output, error, and the corresponding response code
  * (200 in case of success, otherwise -- 400)
  */
-func processValues(values url.Values, params []string, query string) (result string, err error, responseCode int) {
+func processQueryString(values url.Values, params []string, query string) (result string, err error, responseCode int) {
   var row *sql.Row
 
   if len(params) > 0 {
     payload := make([]interface{}, len(params))
 
+    // Iterate over `params` (as they are given in the endpoints structure)
+    // and check, whether they are passed in the GET query string;
+    // store passed parameters in `payload` in case of success,
+    // otherwise return with the Bad Request error
     for i, v := range params {
       isValue := len(values[v]) > 0 && len(values[v][0]) > 0
 
@@ -109,9 +118,9 @@ func processValues(values url.Values, params []string, query string) (result str
       payload[i] = values[v][0]
     }
 
-    row = DBHandle.QueryRow(query, payload...)
+    row = dbHandle.QueryRow(query, payload...)
   } else {
-    row = DBHandle.QueryRow(query)
+    row = dbHandle.QueryRow(query)
   }
 
   return getQueryResult(row)
@@ -124,7 +133,7 @@ func processValues(values url.Values, params []string, query string) (result str
  * and returns its output, error, and the corresponding response code
  * (200 in case of success, otherwise -- 400)
  */
-func processBody(body io.ReadCloser, params []string, query string) (result string, err error, responseCode int) {
+func processRequestBody(body io.ReadCloser, params []string, query string) (result string, err error, responseCode int) {
   var row *sql.Row
 
   if len(params) > 0 {
@@ -133,6 +142,10 @@ func processBody(body io.ReadCloser, params []string, query string) (result stri
 
     decodeRequestBody(body, &values)
 
+    // Iterate over `params` (as they are given in the endpoints structure)
+    // and check, whether they are passed in the request body;
+    // store passed parameters in `payload` in case of success,
+    // otherwise return with the Bad Request error
     for i, v := range params {
       isValue := values[v] != ""
 
@@ -143,9 +156,9 @@ func processBody(body io.ReadCloser, params []string, query string) (result stri
       payload[i] = values[v]
     }
 
-    row = DBHandle.QueryRow(query, payload...)
+    row = dbHandle.QueryRow(query, payload...)
   } else {
-    row = DBHandle.QueryRow(query)
+    row = dbHandle.QueryRow(query)
   }
 
   return getQueryResult(row)
@@ -164,6 +177,7 @@ func output(response http.ResponseWriter, result string, err error, responseCode
 
     errorRaw := err.Error()
 
+    // Remove `pq:` prefix for the database generated errors (RAISE EXCEPTION)
     if strings.HasPrefix(errorRaw, "pq: ") && len(errorRaw) > 4 {
       errorMessage = errorRaw[4:]
     } else {
@@ -183,17 +197,20 @@ func output(response http.ResponseWriter, result string, err error, responseCode
  * calls the handler function for the host's root, and starts listening
  * on the TCP network address for incoming requests
  */
-func Init(configFileName string, endpoints []Endpoint) {
-  var dbError error
+func Init(configFile string, endpoints []Endpoint) {
+  var (
+    config          config
+    dbError         error
+  )
 
   // Read and parse `config.json` file
-  if !file.Exists(configFileName) {
+  if !file.Exists(configFile) {
     log.Fatalln("Fatal error: Cannot find configuration file")
   }
 
-  if config, ok := file.Read(configFileName); ok {
-    if err := json.Unmarshal([]byte(config), &AppConfig); err != nil {
-      log.Fatalln(err)
+  if configData, ok := file.Read(configFile); ok {
+    if jsonDecodeError := json.Unmarshal([]byte(configData), &config); jsonDecodeError != nil {
+      log.Fatalln(jsonDecodeError)
     }
   } else {
     log.Fatalln("Fatal error: Cannot read configuration file")
@@ -202,20 +219,20 @@ func Init(configFileName string, endpoints []Endpoint) {
   // Connect to the database
   connStr := fmt.Sprintf(
     "host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-    AppConfig.DbHost,
-    AppConfig.DbPort,
-    AppConfig.DbUser,
-    AppConfig.DbPassword,
-    AppConfig.DbName,
-    AppConfig.DbSslMode,
+    config.DbHost,
+    config.DbPort,
+    config.DbUser,
+    config.DbPassword,
+    config.DbName,
+    config.DbSslMode,
   )
 
-  if DBHandle, dbError = sql.Open("postgres", connStr); dbError != nil {
+  if dbHandle, dbError = sql.Open("postgres", connStr); dbError != nil {
     panic(dbError)
   }
 
   defer func() {
-    if dbError = DBHandle.Close(); dbError != nil {
+    if dbError = dbHandle.Close(); dbError != nil {
       log.Fatalln(dbError)
     }
   }()
@@ -227,8 +244,8 @@ func Init(configFileName string, endpoints []Endpoint) {
   // Listen on the TCP network address
   tcpAddress := fmt.Sprintf(
     "%s:%s",
-    AppConfig.TcpHost,
-    AppConfig.TcpPort,
+    config.TcpHost,
+    config.TcpPort,
   )
 
   if listenerError := http.ListenAndServe(tcpAddress, nil); listenerError != nil {

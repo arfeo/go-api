@@ -4,7 +4,7 @@ Quick API prototyping with no ass pain (PostgreSQL + Go).
 
 ## Installation
 
-```
+```bash
 $ go get github.com/arfeo/go-api
 ```
 
@@ -12,7 +12,7 @@ $ go get github.com/arfeo/go-api
 
 ### Preamble
 
-Assume that you have some tables in your PostgreSQL database, for example:
+Assume that you have some tables in your `PostgreSQL` database, e.g.:
 
 * `users`
 
@@ -84,7 +84,7 @@ LANGUAGE 'plpgsql';
 
 Create a directory of your project and `main.go` file in it.
 
-Create `config.json` file in the project's directory. It should have the next structure:
+Create `config.json` file in the project's root directory. It should have the next structure:
 
 ```json
 {
@@ -99,9 +99,9 @@ Create `config.json` file in the project's directory. It should have the next st
 }
 ```
 
-Specify the actual database connection settings and TCP settings into `config.json`. Say it will be `"tcp_host": "8100"` and `"tcp_port": ""`.
+Specify the actual database connection settings and TCP settings. Say the last ones are `"tcp_host": "8100"` and `"tcp_port": ""`.
 
-Open `main.go` and put the next lines to it:
+Edit `main.go` by putting the next lines to it:
 
 ```go
 package main
@@ -132,9 +132,9 @@ func main() {
 }
 ```
 
-Run
+Run the program:
 
-```
+```bash
 $ go run main.go
 ```
 

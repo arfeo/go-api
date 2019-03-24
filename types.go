@@ -1,6 +1,6 @@
 package api
 
-type Config struct {
+type config struct {
   DbHost            string        `json:"db_host"`
   DbPort            string        `json:"db_port"`
   DbUser            string        `json:"db_user"`
