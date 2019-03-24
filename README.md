@@ -12,14 +12,14 @@ $ go get github.com/arfeo/go-api
 
 ### Preamble
 
-Assume that you have some tables in your PostgreSQL database:
+Assume that you have some tables in your PostgreSQL database, for example:
 
 * `users`
 
 ```
- id | username |       full_name        |      email      | password_hash | password_salt | is_activated | is_deleted |         registered_at         |          updated_at           
-----+----------+------------------------+-----------------+---------------+---------------+--------------+------------+-------------------------------+-------------------------------
-  1 | arfeo    | Arfeo                  | mail@mail.net   |               |               | t            | f          | 2019-03-17 20:24:36.489189+03 | 2019-03-24 13:20:35.792225+03
+ id | username |       full_name        |      email      | is_activated | is_deleted |         registered_at         |          updated_at           
+----+----------+------------------------+-----------------+--------------+------------+-------------------------------+-------------------------------
+  1 | arfeo    | Arfeo                  | mail@mail.net   | t            | f          | 2019-03-17 20:24:36.489189+03 | 2019-03-24 13:20:35.792225+03
 ```
 
 * `classes`
@@ -138,7 +138,7 @@ Run
 $ go run main.go
 ```
 
-That's it. As easy as pie!
+That's all. As easy as pie!
 
 ```
 $ curl -X GET localhost:8100/classes/list
