@@ -149,3 +149,7 @@ $ curl -X GET localhost:8100/classes/list
 $ curl -X POST localhost:8100/users/change_full_name/ -d '{"user_id":1,"full_name":"Leonid Belikov"}'
 {"id" : 1, "username" : "arfeo", "full_name" : "Leonid Belikov", "email" : "mail@mail.net", "is_activated" : true, "is_deleted" : false, "registered_at" : "2019-03-17T20:24:36.489189+03:00", "updated_at" : "2019-03-24T16:55:01.418285+03:00"}
 ```
+
+## TODO
+
+- [ ] Add authorization support
