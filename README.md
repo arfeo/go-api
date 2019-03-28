@@ -82,9 +82,9 @@ LANGUAGE 'plpgsql';
 
 ### Server side scripts
 
-Create a directory of your project and `main.go` file in it.
+Create a directory of your project.
 
-Create `config.json` file in the project's root directory. It should have the next structure:
+Create `config.json` file in the project's directory. It should have the next structure:
 
 ```json
 {
@@ -105,7 +105,7 @@ Create `config.json` file in the project's root directory. It should have the ne
 
 Specify the actual database connection settings (`db`) and TCP settings (`tcp`). Say the last ones are `"host": "8100"` and `"port": ""`.
 
-Edit `main.go` by putting the next lines to it:
+Create `main.go` file in the project's directory. Put the next lines to it:
 
 ```go
 package main
@@ -136,13 +136,15 @@ func main() {
 }
 ```
 
-Run the program:
+Run the program by executing the following in the project's directory:
 
 ```bash
 $ go run main.go
 ```
 
 That's all. As easy as pie!
+
+You can now test your API service:
 
 ```bash
 $ curl -X GET localhost:8100/classes/list
