@@ -219,12 +219,12 @@ func Init(configFile string, endpoints []Endpoint) {
   // Connect to the database
   connStr := fmt.Sprintf(
     "host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-    config.DbHost,
-    config.DbPort,
-    config.DbUser,
-    config.DbPassword,
-    config.DbName,
-    config.DbSslMode,
+    config.Db.Host,
+    config.Db.Port,
+    config.Db.User,
+    config.Db.Password,
+    config.Db.Database,
+    config.Db.SslMode,
   )
 
   if dbHandle, dbError = sql.Open("postgres", connStr); dbError != nil {
@@ -244,8 +244,8 @@ func Init(configFile string, endpoints []Endpoint) {
   // Listen on the TCP network address
   tcpAddress := fmt.Sprintf(
     "%s:%s",
-    config.TcpHost,
-    config.TcpPort,
+    config.Tcp.Host,
+    config.Tcp.Port,
   )
 
   if listenerError := http.ListenAndServe(tcpAddress, nil); listenerError != nil {

@@ -88,18 +88,22 @@ Create `config.json` file in the project's root directory. It should have the ne
 
 ```json
 {
-	"db_host": "",
-	"db_port": "",
-	"db_user": "",
-	"db_password": "",
-	"db_name": "",
-	"db_sslmode": "",
-	"tcp_host": "",
-	"tcp_port": ""
+	"db": {
+		"host": "",
+		"port": "",
+		"user": "",
+		"password": "",
+		"database": "",
+		"sslmode": ""
+	},
+	"tcp": {
+		"host": "",
+		"port": ""
+	}
 }
 ```
 
-Specify the actual database connection settings and TCP settings. Say the last ones are `"tcp_host": "8100"` and `"tcp_port": ""`.
+Specify the actual database connection settings (`db`) and TCP settings (`tcp`). Say the last ones are `"host": "8100"` and `"port": ""`.
 
 Edit `main.go` by putting the next lines to it:
 

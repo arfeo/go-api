@@ -1,14 +1,22 @@
 package api
 
 type config struct {
-  DbHost            string        `json:"db_host"`
-  DbPort            string        `json:"db_port"`
-  DbUser            string        `json:"db_user"`
-  DbPassword        string        `json:"db_password"`
-  DbName            string        `json:"db_name"`
-  DbSslMode         string        `json:"db_sslmode"`
-  TcpHost           string        `json:"tcp_host"`
-  TcpPort           string        `json:"tcp_port"`
+  Db                configDb      `json:"db"`
+  Tcp               configTcp     `json:"tcp"`
+}
+
+type configDb struct {
+  Host              string        `json:"host"`
+  Port              string        `json:"port"`
+  User              string        `json:"user"`
+  Password          string        `json:"password"`
+  Database          string        `json:"database"`
+  SslMode           string        `json:"sslmode"`
+}
+
+type configTcp struct {
+  Host              string        `json:"host"`
+  Port              string        `json:"port"`
 }
 
 type Endpoint struct {
