@@ -103,7 +103,7 @@ Create `config.json` file in the project's directory. It should have the next st
 }
 ```
 
-Specify the actual database connection settings (`db`) and TCP settings (`tcp`). Say the last ones are `"host": "8100"` and `"port": ""`.
+Specify the actual database connection settings (`db`) and TCP settings (`tcp`). Say the last ones are `"host": ""` and `"port": "8100"`.
 
 Create `main.go` file in the project's directory. Put the next lines to it:
 
